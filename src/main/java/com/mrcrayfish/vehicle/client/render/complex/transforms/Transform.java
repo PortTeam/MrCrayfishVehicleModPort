@@ -1,0 +1,16 @@
+package com.mrcrayfish.vehicle.client.render.complex.transforms;
+
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mrcrayfish.vehicle.client.raytrace.MatrixTransform;
+import com.mrcrayfish.vehicle.entity.VehicleEntity;
+import org.joml.Matrix4f;
+
+/**
+ * Author: MrCrayfish
+ */
+public interface Transform
+{
+    void apply(VehicleEntity entity, PoseStack stack, float partialTicks);
+
+    Matrix4f create(VehicleEntity entity, float partialTicks);
+}
