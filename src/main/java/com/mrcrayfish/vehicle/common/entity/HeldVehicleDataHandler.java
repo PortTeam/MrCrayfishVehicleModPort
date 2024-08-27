@@ -35,7 +35,7 @@ public class HeldVehicleDataHandler
     public static void register()
     {
         //CapabilityManager.INSTANCE.register(IHeldVehicle.class, new Storage(), HeldVehicle::new);
-        MinecraftForge.EVENT_BUS.register(new HeldVehicleDataHandler());
+        //MinecraftForge.EVENT_BUS.register(new HeldVehicleDataHandler());
     }
 
     public static boolean isHoldingVehicle(Player player)

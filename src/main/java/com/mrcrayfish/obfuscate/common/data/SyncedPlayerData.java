@@ -61,6 +61,7 @@ import java.util.stream.Collectors;
  * <p></p>
  * <p>Author: MrCrayfish</p>
  */
+@AutoRegisterCapability
 public class SyncedPlayerData
 {
 

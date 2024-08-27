@@ -21,7 +21,7 @@ public class ModCommands
         if(FMLLoader.isProduction())
             return;
         CommandDispatcher<CommandSourceStack> dispatcher = event.getServer().getCommands().getDispatcher();
-        this.registerCommands(dispatcher, event.getServer().isDedicatedServer());
+        //this.registerCommands(dispatcher, event.getServer().isDedicatedServer());
     }
 
     private void registerCommands(CommandDispatcher<CommandSourceStack> dispatcher, boolean dedicated)

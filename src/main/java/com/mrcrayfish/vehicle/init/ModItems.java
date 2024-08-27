@@ -56,6 +56,6 @@ public class ModItems
 
     private static <T extends Item> RegistryObject<T> register(String id, T item)
     {
-        return ModItems.REGISTER.register(id,() -> item);
+        return REGISTER.register(id,() -> item);
     }
 }

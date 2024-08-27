@@ -1,5 +1,6 @@
 package com.mrcrayfish.vehicle;
 
+import com.mrcrayfish.framework.FrameworkSetup;
 import com.mrcrayfish.vehicle.block.VehicleCrateBlock;
 import com.mrcrayfish.vehicle.client.ClientHandler;
 import com.mrcrayfish.vehicle.client.model.ComponentManager;
@@ -45,7 +46,10 @@ public class VehicleMod
 
     public VehicleMod()
     {
-        IEventBus eventBus = FMLJavaModLoadingContext.get().getModEventBus();
+        //FrameworkSetup.run();
+        ModLoadingContext.get().registerConfig(ModConfig.Type.SERVER, Config.serverSpec);
+        ModLoadingContext.get().registerConfig(ModConfig.Type.CLIENT, Config.clientSpec);
+        final var eventBus = FMLJavaModLoadingContext.get().getModEventBus();
         ModBlocks.register(eventBus);
         ModItems.REGISTER.register(eventBus);
         ModEntities.REGISTER.register(eventBus);
@@ -55,8 +59,7 @@ public class VehicleMod
         ModSounds.REGISTER.register(eventBus);
         ModRecipeSerializers.REGISTER.register(eventBus);
         ModFluids.REGISTER.register(eventBus);
-        ModLoadingContext.get().registerConfig(ModConfig.Type.SERVER, Config.serverSpec);
-        ModLoadingContext.get().registerConfig(ModConfig.Type.CLIENT, Config.clientSpec);
+
         eventBus.addListener(this::onCommonSetup);
         eventBus.addListener(this::onClientSetup);
         eventBus.addListener(this::onGatherData);
@@ -65,12 +68,7 @@ public class VehicleMod
         MinecraftForge.EVENT_BUS.register(new CommonEvents());
         MinecraftForge.EVENT_BUS.register(new ModCommands());
         MinecraftForge.EVENT_BUS.register(FluidNetworkHandler.instance());
-        ExtendedProperties.register(new ResourceLocation(Reference.MOD_ID, "powered"), PoweredProperties.class, PoweredProperties::new);
-        ExtendedProperties.register(new ResourceLocation(Reference.MOD_ID, "land"), LandProperties.class, LandProperties::new);
-        ExtendedProperties.register(new ResourceLocation(Reference.MOD_ID, "motorcycle"), MotorcycleProperties.class, MotorcycleProperties::new);
-        ExtendedProperties.register(new ResourceLocation(Reference.MOD_ID, "plane"), PlaneProperties.class, PlaneProperties::new);
-        ExtendedProperties.register(new ResourceLocation(Reference.MOD_ID, "helicopter"), HelicopterProperties.class, HelicopterProperties::new);
-        ExtendedProperties.register(new ResourceLocation(Reference.MOD_ID, "trailer"), TrailerProperties.class, TrailerProperties::new);
+
         DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> ComponentManager.registerLoader(VehicleModels.LOADER));
     }
 
@@ -78,12 +76,24 @@ public class VehicleMod
     {
         RecipeTypes.init();
         VehicleProperties.loadDefaultProperties();
-        PacketHandler.registerMessages();
+
         HeldVehicleDataHandler.register();
         ModDataKeys.register();
         //ModLootFunctions.init();
         CraftingHelper.register(new ResourceLocation(Reference.MOD_ID, "workstation_ingredient"), WorkstationIngredient.Serializer.INSTANCE);
         event.enqueueWork(() -> VehicleProperties.registerDynamicProvider(() -> new VehiclePropertiesGen(null)));
+        event.enqueueWork(() -> {
+            PacketHandler.registerMessages();
+            //VehicleProperties.registerDynamicProvider(() -> new VehiclePropertiesGen(null));
+
+            // Move ExtendedProperties registration here
+            ExtendedProperties.register(new ResourceLocation(Reference.MOD_ID, "powered"), PoweredProperties.class, PoweredProperties::new);
+            ExtendedProperties.register(new ResourceLocation(Reference.MOD_ID, "land"), LandProperties.class, LandProperties::new);
+            ExtendedProperties.register(new ResourceLocation(Reference.MOD_ID, "motorcycle"), MotorcycleProperties.class, MotorcycleProperties::new);
+            ExtendedProperties.register(new ResourceLocation(Reference.MOD_ID, "plane"), PlaneProperties.class, PlaneProperties::new);
+            ExtendedProperties.register(new ResourceLocation(Reference.MOD_ID, "helicopter"), HelicopterProperties.class, HelicopterProperties::new);
+            ExtendedProperties.register(new ResourceLocation(Reference.MOD_ID, "trailer"), TrailerProperties.class, TrailerProperties::new);
+        });
     }
 
     private void buildContents(CreativeModeTab.Output output)
