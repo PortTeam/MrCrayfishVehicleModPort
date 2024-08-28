@@ -15,12 +15,8 @@ import javax.annotation.Nullable;
  */
 public class FluidExtractorRecipeSerializer implements RecipeSerializer<FluidExtractorRecipe>
 {
-    public static FluidExtractorRecipeSerializer INSTANCE;
+    public static FluidExtractorRecipeSerializer INSTANCE = new FluidExtractorRecipeSerializer();
 
-    public FluidExtractorRecipeSerializer()
-    {
-        INSTANCE = this;
-    }
 
     @Override
     public FluidExtractorRecipe fromJson(ResourceLocation recipeId, JsonObject json)

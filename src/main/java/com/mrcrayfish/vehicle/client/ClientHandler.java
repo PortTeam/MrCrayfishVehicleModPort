@@ -194,7 +194,7 @@ public class ClientHandler
             VehicleUtil.registerVehicleRenderer(ModEntities.SOFACOPTER.get(), SofaHelicopterRenderer::new);
         }
 
-        EntityRenderers.register(ModEntities.JACK.get(), com.mrcrayfish.vehicle.client.render.JackRenderer::new);
+       // EntityRenderers.register(ModEntities.JACK.get(), com.mrcrayfish.vehicle.client.render.JackRenderer::new);
     }
 
     public static void setupTileEntityRenderers(EntityRenderersEvent.RegisterRenderers event)

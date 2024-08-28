@@ -46,7 +46,7 @@ public class VehicleMod
 
     public VehicleMod()
     {
-        //FrameworkSetup.run();
+        FrameworkSetup.run();
         ModLoadingContext.get().registerConfig(ModConfig.Type.SERVER, Config.serverSpec);
         ModLoadingContext.get().registerConfig(ModConfig.Type.CLIENT, Config.clientSpec);
         final var eventBus = FMLJavaModLoadingContext.get().getModEventBus();
@@ -59,11 +59,12 @@ public class VehicleMod
         ModSounds.REGISTER.register(eventBus);
         ModRecipeSerializers.REGISTER.register(eventBus);
         ModFluids.REGISTER.register(eventBus);
+        RecipeTypes.register(eventBus);
 
         eventBus.addListener(this::onCommonSetup);
         eventBus.addListener(this::onClientSetup);
         eventBus.addListener(this::onGatherData);
-        eventBus.addListener(this::buildContents);
+        //eventBus.addListener(this::buildContents);
         eventBus.addListener(this::tile);
         MinecraftForge.EVENT_BUS.register(new CommonEvents());
         MinecraftForge.EVENT_BUS.register(new ModCommands());
@@ -74,7 +75,6 @@ public class VehicleMod
 
     private void onCommonSetup(FMLCommonSetupEvent event)
     {
-        RecipeTypes.init();
         VehicleProperties.loadDefaultProperties();
 
         HeldVehicleDataHandler.register();
@@ -103,7 +103,8 @@ public class VehicleMod
 
     private void onClientSetup(FMLClientSetupEvent event)
     {
-        ClientHandler.setup();
+        event.enqueueWork(ClientHandler::setup);
+
     }
 
     private void onGatherData(GatherDataEvent event)

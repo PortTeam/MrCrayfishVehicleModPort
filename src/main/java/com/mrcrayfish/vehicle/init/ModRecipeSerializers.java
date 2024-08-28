@@ -22,7 +22,7 @@ public class ModRecipeSerializers
 //    public static final RegistryObject<SpecialRecipeSerializer<RecipeColorSprayCan>> COLOR_SPRAY_CAN = REGISTER.register("color_spray_can", () -> new SpecialRecipeSerializer<>(RecipeColorSprayCan::new));
 //    public static final RegistryObject<SpecialRecipeSerializer<RecipeRefillSprayCan>> REFILL_SPRAY_CAN = REGISTER.register("refill_spray_can", () -> new SpecialRecipeSerializer<>(RecipeRefillSprayCan::new));
     public static final RegistryObject<FluidExtractorRecipeSerializer> FLUID_EXTRACTOR =
-            REGISTER.register("fluid_extractor", ()-> FluidExtractorRecipeSerializer.INSTANCE);
+            REGISTER.register("fluid_extractor", FluidExtractorRecipeSerializer::new);
     public static final RegistryObject<FluidMixerRecipeSerializer> FLUID_MIXER =
             REGISTER.register("fluid_mixer", ()-> FluidMixerRecipeSerializer.INSTANCE);
     public static final RegistryObject<WorkstationRecipeSerializer> WORKSTATION =

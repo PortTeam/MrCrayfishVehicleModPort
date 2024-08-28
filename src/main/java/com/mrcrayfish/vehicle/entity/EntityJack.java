@@ -44,6 +44,8 @@ public class EntityJack extends Entity implements IEntityAdditionalSpawnData
         this.initialZ = pos.getZ() + 0.5;
     }
 
+
+
     @Override
     protected void defineSynchedData()
     {

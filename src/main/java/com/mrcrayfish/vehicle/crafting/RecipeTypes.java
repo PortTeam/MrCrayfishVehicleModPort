@@ -4,6 +4,7 @@ import com.mrcrayfish.vehicle.Reference;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeType;
+import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
@@ -31,4 +32,9 @@ public class RecipeTypes
 
     // Does nothing, just forces static fields to initialize
     public static void init() {}
+
+    public static void register(IEventBus eventBus)
+    {
+        RECIPES.register(eventBus);
+    }
 }

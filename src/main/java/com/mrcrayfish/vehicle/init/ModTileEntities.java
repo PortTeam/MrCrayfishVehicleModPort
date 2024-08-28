@@ -20,7 +20,9 @@ public class ModTileEntities
     public static final DeferredRegister<BlockEntityType<?>> REGISTER = DeferredRegister.create(ForgeRegistries.BLOCK_ENTITY_TYPES, Reference.MOD_ID);
 
     public static final RegistryObject<BlockEntityType<FluidExtractorTileEntity>> FLUID_EXTRACTOR =
-            register("fluid_extractor",FluidExtractorTileEntity::new, () -> new Block[]{ModBlocks.FLUID_EXTRACTOR.get()});
+            REGISTER.register("fluid_extractor_tile_entity", () ->
+                    BlockEntityType.Builder.of(FluidExtractorTileEntity::new, ModBlocks.FLUID_EXTRACTOR.get()).build(null)
+            );
     public static final RegistryObject<BlockEntityType<PipeTileEntity>> FLUID_PIPE = register("fluid_pipe", PipeTileEntity::new, () -> new Block[]{ModBlocks.FLUID_PIPE.get()});
     public static final RegistryObject<BlockEntityType<PumpTileEntity>> FLUID_PUMP = register("fluid_pump", PumpTileEntity::new, () -> new Block[]{ModBlocks.FLUID_PUMP.get()});
     public static final RegistryObject<BlockEntityType<FuelDrumTileEntity>> FUEL_DRUM = register("fuel_drum", FuelDrumTileEntity::new, () -> new Block[]{ModBlocks.FUEL_DRUM.get()});
