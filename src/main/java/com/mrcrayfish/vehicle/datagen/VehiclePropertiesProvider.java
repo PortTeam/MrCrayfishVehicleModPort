@@ -24,6 +24,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.sql.Ref;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
@@ -54,7 +55,7 @@ public abstract class VehiclePropertiesProvider extends DatapackBuiltinEntriesPr
 
     protected final void add(EntityType<? extends VehicleEntity> type, VehicleProperties.Builder builder)
     {
-        this.add(EntityType.getKey(type), builder); // Use getKey to get the correct ResourceLocation
+        this.add(new ResourceLocation(Reference.MOD_ID,type.toString()), builder); // Use getKey to get the correct ResourceLocation
     }
 
     protected final void add(ResourceLocation id, VehicleProperties.Builder builder)
@@ -78,6 +79,7 @@ public abstract class VehiclePropertiesProvider extends DatapackBuiltinEntriesPr
                 String modId = id.getNamespace();
                 String vehicleId = id.getPath();
                 Path path = this.generator.getPackOutput().getOutputFolder().resolve("data/" + modId + "/vehicles/properties/" + vehicleId + ".json");
+                System.out.println(path);
                 try {
                     saveJsonToFile(cachedOutput,path, GSON.toJson(properties));
                 } catch (IOException e) {

@@ -367,26 +367,7 @@ public class VehicleProperties
         DYNAMIC_SUPPLIERS.add(supplier);
     }
 
-    @SubscribeEvent
-    public static void onKeyPress(InputEvent.Key event)
-    {
-        if(FMLEnvironment.production)
-            return;
 
-        if(event.getKey() != GLFW.GLFW_KEY_F6 || (event.getModifiers() % GLFW.GLFW_KEY_LEFT_CONTROL) <= 0)
-            return;
-
-        DYNAMIC_SUPPLIERS.forEach(supplier ->
-        {
-            VehiclePropertiesProvider provider = supplier.get();
-            provider.setScaleWheels(true);
-            provider.registerProperties();
-            //provider.getVehiclePropertiesMap().forEach(DEFAULT_VEHICLE_PROPERTIES::put);
-            //provider.getVehiclePropertiesMap().forEach(NETWORK_VEHICLE_PROPERTIES::put);
-        });
-
-        Minecraft.getInstance().gui.setOverlayMessage(Component.literal("Refreshed vehicle properties!"), false);
-    }
 
     public static class Serializer implements JsonDeserializer<VehicleProperties>, JsonSerializer<VehicleProperties>
     {
@@ -561,6 +542,26 @@ public class VehicleProperties
                 object.add("cosmetics", cosmetics);
             }
         }
+    }
+    @SubscribeEvent
+    public static void onKeyPress(InputEvent.Key event)
+    {
+        if(FMLEnvironment.production)
+            return;
+
+        if(event.getKey() != GLFW.GLFW_KEY_F6 || (event.getModifiers() % GLFW.GLFW_KEY_LEFT_CONTROL) <= 0)
+            return;
+
+        DYNAMIC_SUPPLIERS.forEach(supplier ->
+        {
+            VehiclePropertiesProvider provider = supplier.get();
+            provider.setScaleWheels(true);
+            provider.registerProperties();
+            provider.getVehiclePropertiesMap().forEach(DEFAULT_VEHICLE_PROPERTIES::put);
+            provider.getVehiclePropertiesMap().forEach(NETWORK_VEHICLE_PROPERTIES::put);
+        });
+
+        Minecraft.getInstance().gui.setOverlayMessage(Component.literal("Refreshed vehicle properties!"), false);
     }
 
     public static Builder builder()
