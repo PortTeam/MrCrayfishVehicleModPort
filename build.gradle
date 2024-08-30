@@ -18,7 +18,7 @@ base {
 
 java.toolchain.languageVersion = JavaLanguageVersion.of(17)
 
-sourceSets.main.resources { srcDir 'src/generated/resources' }
+
 
 minecraft {
     mappings channel: mapping_channel, version: mapping_version
@@ -103,7 +103,7 @@ minecraft {
         }
     }
 }
-
+sourceSets.main.resources { srcDir 'src/generated/resources' }
 repositories {
     maven {
         url = "https://www.cursemaven.com"
@@ -120,6 +120,7 @@ repositories {
 
 dependencies {
     minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
+    implementation 'com.google.code.gson:gson:2.11.0'
 
     //compile fg.deobf('curse.maven:obfuscate-289380:3336021')
     implementation fg.deobf('curse.maven:controllable-317269:4598985')

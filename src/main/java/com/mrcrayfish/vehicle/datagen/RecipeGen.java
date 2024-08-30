@@ -41,7 +41,7 @@ public class RecipeGen extends RecipeProvider
     @Override
     protected void buildRecipes(Consumer<FinishedRecipe> consumer)
     {
-        netheriteSmithing(consumer, ModItems.DIAMOND_ELECTRIC_ENGINE.get(), ModItems.NETHERITE_ELECTRIC_ENGINE.get());
+//        netheriteSmithing(consumer, ModItems.DIAMOND_ELECTRIC_ENGINE.get(), ModItems.NETHERITE_ELECTRIC_ENGINE.get());
 
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC,ModItems.DIAMOND_ELECTRIC_ENGINE.get())
                 .pattern(" U ")
@@ -79,7 +79,7 @@ public class RecipeGen extends RecipeProvider
                 .unlockedBy("has_redstone_block", has(Items.REDSTONE_BLOCK))
                 .save(consumer);
 
-        netheriteSmithing(consumer, ModItems.DIAMOND_SMALL_ENGINE.get(), ModItems.NETHERITE_SMALL_ENGINE.get());
+//        netheriteSmithing(consumer, ModItems.DIAMOND_SMALL_ENGINE.get(), ModItems.NETHERITE_SMALL_ENGINE.get());
 
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC,ModItems.DIAMOND_SMALL_ENGINE.get())
                 .pattern(" U ")
@@ -116,7 +116,7 @@ public class RecipeGen extends RecipeProvider
                 .unlockedBy("has_furnace", has(Items.FURNACE))
                 .save(consumer);
 
-        netheriteSmithing(consumer, ModItems.DIAMOND_LARGE_ENGINE.get(), ModItems.NETHERITE_LARGE_ENGINE.get());
+//        netheriteSmithing(consumer, ModItems.DIAMOND_LARGE_ENGINE.get(), ModItems.NETHERITE_LARGE_ENGINE.get());
 
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC,ModItems.DIAMOND_LARGE_ENGINE.get())
                 .pattern(" U ")

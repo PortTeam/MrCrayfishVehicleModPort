@@ -239,7 +239,7 @@ public class VehicleProperties
     {
         for(EntityType<? extends VehicleEntity> entityType : VehicleRegistry.getRegisteredVehicleTypes())
         {
-            DEFAULT_VEHICLE_PROPERTIES.computeIfAbsent(ResourceLocation.tryParse(entityType.toString()), id -> id != null ? loadDefaultProperties(id) : null);
+            DEFAULT_VEHICLE_PROPERTIES.computeIfAbsent(new ResourceLocation(Reference.MOD_ID,entityType.toString()), VehicleProperties::loadDefaultProperties);
         }
     }
 
@@ -295,7 +295,7 @@ public class VehicleProperties
 
     public static VehicleProperties get(EntityType<?> entityType)
     {
-        return get(ResourceLocation.tryParse(entityType.toString()));
+        return get(new ResourceLocation(Reference.MOD_ID,entityType.toString()));
     }
 
     public static VehicleProperties get(ResourceLocation id)
@@ -778,8 +778,8 @@ public class VehicleProperties
     @Mod.EventBusSubscriber(modid = Reference.MOD_ID)
     public static class Manager extends SimplePreparableReloadListener<Map<ResourceLocation, VehicleProperties>> {
 
-        private static final String PROPERTIES_DIRECTORY = "vehicles/properties";
-        private static final String COSMETICS_DIRECTORY = "vehicles/cosmetics";
+        private static final String PROPERTIES_DIRECTORY = "vehicle:vehicles/properties";
+        private static final String COSMETICS_DIRECTORY = "vehicle:vehicles/cosmetics";
         private static final String FILE_SUFFIX = ".json";
 
         @Nullable
@@ -879,7 +879,7 @@ public class VehicleProperties
                 for (int i = 0; i < size; i++) {
                     ResourceLocation id = buffer.readResourceLocation();
                     String json = buffer.readUtf();
-                    VehicleProperties properties = GSON.fromJson(json, VehicleProperties.class);
+                    VehicleProperties properties = GsonHelper.fromJson(GSON,json, VehicleProperties.class);
                     builder.put(id, properties);
                     readCosmeticModelLocations(buffer, properties);
                 }

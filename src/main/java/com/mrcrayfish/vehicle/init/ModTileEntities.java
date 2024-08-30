@@ -20,14 +20,17 @@ public class ModTileEntities
     public static final DeferredRegister<BlockEntityType<?>> REGISTER = DeferredRegister.create(ForgeRegistries.BLOCK_ENTITY_TYPES, Reference.MOD_ID);
 
     public static final RegistryObject<BlockEntityType<FluidExtractorTileEntity>> FLUID_EXTRACTOR =
-            REGISTER.register("fluid_extractor_tile_entity", () ->
+            REGISTER.register("fluid_extractor", () ->
                     BlockEntityType.Builder.of(FluidExtractorTileEntity::new, ModBlocks.FLUID_EXTRACTOR.get()).build(null)
             );
     public static final RegistryObject<BlockEntityType<PipeTileEntity>> FLUID_PIPE = register("fluid_pipe", PipeTileEntity::new, () -> new Block[]{ModBlocks.FLUID_PIPE.get()});
     public static final RegistryObject<BlockEntityType<PumpTileEntity>> FLUID_PUMP = register("fluid_pump", PumpTileEntity::new, () -> new Block[]{ModBlocks.FLUID_PUMP.get()});
     public static final RegistryObject<BlockEntityType<FuelDrumTileEntity>> FUEL_DRUM = register("fuel_drum", FuelDrumTileEntity::new, () -> new Block[]{ModBlocks.FUEL_DRUM.get()});
     public static final RegistryObject<BlockEntityType<IndustrialFuelDrumTileEntity>> INDUSTRIAL_FUEL_DRUM = register("industrial_fuel_drum", IndustrialFuelDrumTileEntity::new, () -> new Block[]{ModBlocks.INDUSTRIAL_FUEL_DRUM.get()});
-    public static final RegistryObject<BlockEntityType<FluidMixerTileEntity>> FLUID_MIXER = register("fluid_mixer", (BlockEntityType.BlockEntitySupplier<FluidMixerTileEntity>) FluidMixerTileEntity::new, () -> new Block[]{ModBlocks.FLUID_MIXER.get()});
+    public static final RegistryObject<BlockEntityType<FluidMixerTileEntity>> FLUID_MIXER =
+            REGISTER.register("fluid_mixer", () ->
+                    BlockEntityType.Builder.of(FluidMixerTileEntity::new, ModBlocks.FLUID_MIXER.get()).build(null)
+            );
     public static final RegistryObject<BlockEntityType<VehicleCrateTileEntity>> VEHICLE_CRATE = register("vehicle_crate", (BlockEntityType.BlockEntitySupplier<VehicleCrateTileEntity>) VehicleCrateTileEntity::new, () -> new Block[]{ModBlocks.VEHICLE_CRATE.get()});
     public static final RegistryObject<BlockEntityType<WorkstationTileEntity>> WORKSTATION = register("workstation", WorkstationTileEntity::new, () -> new Block[]{ModBlocks.WORKSTATION.get()});
     public static final RegistryObject<BlockEntityType<JackTileEntity>> JACK = register("jack", JackTileEntity::new, () -> new Block[]{ModBlocks.JACK.get()});

@@ -20,11 +20,7 @@ import java.util.Optional;
  */
 public class WorkstationRecipeSerializer implements RecipeSerializer<WorkstationRecipe>
 {
-    public static WorkstationRecipeSerializer INSTANCE;
-
-    public WorkstationRecipeSerializer() {
-        INSTANCE = this;
-    }
+    public static WorkstationRecipeSerializer INSTANCE = new WorkstationRecipeSerializer();
 
     @Override
     public WorkstationRecipe fromJson(ResourceLocation recipeId, JsonObject parent)

@@ -1,6 +1,7 @@
 package com.mrcrayfish.vehicle.crafting;
 
 import com.mrcrayfish.vehicle.Reference;
+import com.mrcrayfish.vehicle.VehicleMod;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeType;
@@ -35,6 +36,8 @@ public class RecipeTypes
 
     public static void register(IEventBus eventBus)
     {
+        VehicleMod.LOGGER.info("Registered RecipeTypes");
+
         RECIPES.register(eventBus);
     }
 }

@@ -18,71 +18,84 @@ import com.mrcrayfish.vehicle.entity.properties.VehicleProperties;
 import com.mrcrayfish.vehicle.init.ModEntities;
 import com.mrcrayfish.vehicle.init.ModSounds;
 import com.mrcrayfish.vehicle.util.Axis;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.data.DataGenerator;
 
+import net.minecraft.data.PackOutput;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.fml.common.Mod;
+
+import java.io.IOException;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * Author: MrCrayfish
  */
 public class VehiclePropertiesGen extends VehiclePropertiesProvider
 {
-    public VehiclePropertiesGen(DataGenerator generator)
+    public VehiclePropertiesGen(DataGenerator generator, PackOutput packOutput, CompletableFuture<HolderLookup.Provider> registries)
     {
-        super(generator);
+        super(generator,packOutput,registries);
     }
 
     @Override
     public void registerProperties()
     {
-        this.add(ModEntities.QUAD_BIKE.get(), VehicleProperties.builder()
-                .setAxleOffset(-0.5F)
-                .setBodyTransform(Transform.create(1.1))
-                .setDisplayTransform(Transform.create(1.5))
-                .setHeldOffset(4.0, 3.5, 0.0)
-                .setCanTowTrailers(true)
-                .setTowBarPosition(0.0, 0.0, -16.0)
-                .setTrailerOffset(0.0, 0.0, -0.55)
-                .addWheel(Wheel.builder()
-                        .setSide(Wheel.Side.LEFT)
-                        .setPosition(Wheel.Position.FRONT)
-                        .setOffset(4.5, 0.0, 9.5)
-                        .setScale(1.1))
-                .addWheel(Wheel.builder()
-                        .setSide(Wheel.Side.RIGHT)
-                        .setPosition(Wheel.Position.FRONT)
-                        .setOffset(4.5, 0.0, 9.5)
-                        .setScale(1.1))
-                .addWheel(Wheel.builder()
-                        .setSide(Wheel.Side.LEFT)
-                        .setPosition(Wheel.Position.REAR)
-                        .setOffset(4.5, 0.0, -11.0)
-                        .setScale(1.1)
-                        .setParticles(true))
-                .addWheel(Wheel.builder()
-                        .setSide(Wheel.Side.RIGHT)
-                        .setPosition(Wheel.Position.REAR)
-                        .setOffset(4.5, 0.0, -11.0)
-                        .setScale(1.1)
-                        .setParticles(true))
-                .addSeat(Seat.of(0.0, 5.0, -4.0, true))
-                .addSeat(Seat.of(0.0, 5.5, -12.0))
-                .setCanChangeWheels(true)
-                .setCanBePainted(true)
-                .addExtended(PoweredProperties.builder()
-                        .setEngineType(EngineType.SMALL_MOTOR)
-                        .setEnginePower(15F)
-                        .setFuelFillerTransform(Transform.create(0.0, 11.2876, 7.5, -90.0, 0.0, 0.0, 0.6))
-                        .setIgnitionTransform(Transform.create(-5.0, 4.5, 6.5, -45.0, 0.0, 0.0, 0.5))
-                        .setFrontAxleOffset(9.5)
-                        .setRearAxleOffset(-11.0)
-                        .setEnergyCapacity(20000F)
-                        .setEngineSound(ModSounds.ENTITY_QUAD_BIKE_ENGINE.getId())
-                        .setFuelFillerType(FuelFillerType.SMALL)
-                        .setRenderEngine(true)
-                        .setEngineTransform(Transform.create(0.0, 1.0, -1.0, 0.0, 180.0, 0.0, 0.5))
-                        .build()));
+//        try{
+//            this.add(ModEntities.QUAD_BIKE.get(), VehicleProperties.builder()
+//                    .setAxleOffset(-0.5F)
+//                    .setBodyTransform(Transform.create(1.1))
+//                    .setDisplayTransform(Transform.create(1.5))
+//                    .setHeldOffset(4.0, 3.5, 0.0)
+//                    .setCanTowTrailers(true)
+//                    .setTowBarPosition(0.0, 0.0, -16.0)
+//                    .setTrailerOffset(0.0, 0.0, -0.55)
+//                    .addWheel(Wheel.builder()
+//                            .setSide(Wheel.Side.LEFT)
+//                            .setPosition(Wheel.Position.FRONT)
+//                            .setOffset(4.5, 0.0, 9.5)
+//                            .setScale(1.1))
+//                    .addWheel(Wheel.builder()
+//                            .setSide(Wheel.Side.RIGHT)
+//                            .setPosition(Wheel.Position.FRONT)
+//                            .setOffset(4.5, 0.0, 9.5)
+//                            .setScale(1.1))
+//                    .addWheel(Wheel.builder()
+//                            .setSide(Wheel.Side.LEFT)
+//                            .setPosition(Wheel.Position.REAR)
+//                            .setOffset(4.5, 0.0, -11.0)
+//                            .setScale(1.1)
+//                            .setParticles(true))
+//                    .addWheel(Wheel.builder()
+//                            .setSide(Wheel.Side.RIGHT)
+//                            .setPosition(Wheel.Position.REAR)
+//                            .setOffset(4.5, 0.0, -11.0)
+//                            .setScale(1.1)
+//                            .setParticles(true))
+//                    .addSeat(Seat.of(0.0, 5.0, -4.0, true))
+//                    .addSeat(Seat.of(0.0, 5.5, -12.0))
+//                    .setCanChangeWheels(true)
+//                    .setCanBePainted(true)
+//                    .addExtended(PoweredProperties.builder()
+//                            .setEngineType(EngineType.SMALL_MOTOR)
+//                            .setEnginePower(15F)
+//                            .setFuelFillerTransform(Transform.create(0.0, 11.2876, 7.5, -90.0, 0.0, 0.0, 0.6))
+//                            .setIgnitionTransform(Transform.create(-5.0, 4.5, 6.5, -45.0, 0.0, 0.0, 0.5))
+//                            .setFrontAxleOffset(9.5)
+//                            .setRearAxleOffset(-11.0)
+//                            .setEnergyCapacity(20000F)
+//                            .setEngineSound(ModSounds.ENTITY_QUAD_BIKE_ENGINE.getId())
+//                            .setFuelFillerType(FuelFillerType.SMALL)
+//                            .setRenderEngine(true)
+//                            .setEngineTransform(Transform.create(0.0, 1.0, -1.0, 0.0, 180.0, 0.0, 0.5))
+//                            .build()));
+//        }
+//        catch (
+//                Exception e
+//        ){
+//            e.printStackTrace();
+//            System.out.println("Not registered QUad");
+//        }
 
         this.add(ModEntities.COMPACT_HELICOPTER.get(), VehicleProperties.builder()
                 .addSeat(Seat.of(7.5, 10.0, 3.0, true))

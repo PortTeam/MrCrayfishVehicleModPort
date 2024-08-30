@@ -1,17 +1,19 @@
 package com.mrcrayfish.vehicle.datagen;
 
 import com.google.common.collect.ImmutableMap;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
+import com.google.gson.*;
+import com.mrcrayfish.vehicle.Reference;
+import com.mrcrayfish.vehicle.VehicleMod;
 import com.mrcrayfish.vehicle.entity.VehicleEntity;
 import com.mrcrayfish.vehicle.entity.properties.VehicleProperties;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.data.CachedOutput;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.data.DataProvider;
+import net.minecraft.data.PackOutput;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EntityType;
+import net.minecraftforge.common.data.DatapackBuiltinEntriesProvider;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -22,18 +24,13 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
 /**
  * Author: MrCrayfish
  */
-public abstract class VehiclePropertiesProvider implements DataProvider
-{
+public abstract class VehiclePropertiesProvider extends DatapackBuiltinEntriesProvider {
     private static final Logger LOGGER = LogManager.getLogger();
     private static final Gson GSON = new GsonBuilder().registerTypeAdapter(VehicleProperties.class, new VehicleProperties.Serializer()).create();
 
@@ -44,10 +41,11 @@ public abstract class VehiclePropertiesProvider implements DataProvider
     // Placeholder cache implementation
     private final Map<Path, String> cache = new HashMap<>();
 
-    protected VehiclePropertiesProvider(DataGenerator generator)
-    {
+    public VehiclePropertiesProvider(DataGenerator generator,PackOutput output, CompletableFuture<HolderLookup.Provider> registries) {
+        super(output, registries, Set.of(Reference.MOD_ID));
         this.generator = generator;
     }
+
 
     public void setScaleWheels(boolean scaleWheels)
     {
@@ -80,7 +78,11 @@ public abstract class VehiclePropertiesProvider implements DataProvider
                 String modId = id.getNamespace();
                 String vehicleId = id.getPath();
                 Path path = this.generator.getPackOutput().getOutputFolder().resolve("data/" + modId + "/vehicles/properties/" + vehicleId + ".json");
-                saveJsonToFile(path, GSON.toJson(properties));
+                try {
+                    saveJsonToFile(cachedOutput,path, GSON.toJson(properties));
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
 
                 if (properties.getCosmetics().isEmpty()) {
                     return;
@@ -108,25 +110,19 @@ public abstract class VehiclePropertiesProvider implements DataProvider
                     validModels.add(cosmeticId.toString(), array);
                 });
                 object.add("valid_models", validModels);
-                saveJsonToFile(path, GSON.toJson(object));
+                try {
+                    saveJsonToFile(cachedOutput,path, GSON.toJson(object));
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
             });
         });
     }
 
-    private void saveJsonToFile(Path path, String json) {
-        try {
-            String hash = sha1Hash(json);
-            if (!Objects.equals(cache.get(path), hash) || !Files.exists(path)) {
-                Files.createDirectories(path.getParent());
-                try (BufferedWriter writer = Files.newBufferedWriter(path)) {
-                    writer.write(json);
-                }
-                cache.put(path, hash);
-            }
-        } catch (IOException e) {
-            LOGGER.error("Couldn't save vehicle properties to {}", path, e);
-        }
+    private void saveJsonToFile(CachedOutput cachedOutput, Path path, String json) throws IOException {
+        DataProvider.saveStable(cachedOutput, GSON.fromJson(json, JsonElement.class), path);
     }
+
 
     private String sha1Hash(String input) {
         try {

@@ -13,6 +13,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
@@ -31,7 +32,7 @@ public class FluidMixerBlock extends RotatedObjectBlock implements EntityBlock
 
     public FluidMixerBlock()
     {
-        super(Block.Properties.copy(Blocks.IRON_BLOCK).strength(1.0F));
+        super(BlockBehaviour.Properties.copy(Blocks.IRON_BLOCK).strength(1.0F));
         this.registerDefaultState(this.getStateDefinition().any().setValue(DIRECTION, Direction.NORTH).setValue(ENABLED, false));
     }
 

@@ -22,17 +22,17 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 /**
- * A helper class that manages the camera rotations for vehicles
+ * A helper class that manages the camera rotations for vehicles.<br>
  *
  * Author: MrCrayfish
  */
 @OnlyIn(Dist.CLIENT)
 public class CameraHelper
 {
-    private static final Method SET_POSITION_METHOD = ObfuscationReflectionHelper.findMethod(CameraType.class, "func_216775_b", double.class, double.class, double.class);
-    private static final Method MOVE_METHOD = ObfuscationReflectionHelper.findMethod(CameraType.class, "func_216782_a", double.class, double.class, double.class);
-    private static final Method GET_MAX_MOVE_METHOD = ObfuscationReflectionHelper.findMethod(CameraType.class, "func_216779_a", double.class);
-    private static final Field LEFT_FIELD = ObfuscationReflectionHelper.findField(CameraType.class, "field_216796_h");
+    private static final Method SET_POSITION_METHOD = ObfuscationReflectionHelper.findMethod(Camera.class, "setPosition", double.class, double.class, double.class);
+    private static final Method MOVE_METHOD = ObfuscationReflectionHelper.findMethod(Camera.class, "move", double.class, double.class, double.class);
+    private static final Method GET_MAX_MOVE_METHOD = ObfuscationReflectionHelper.findMethod(Camera.class, "getMaxZoom", double.class);
+    private static final Field LEFT_FIELD = ObfuscationReflectionHelper.findField(Camera.class, "position");
 
     private VehicleProperties properties;
     private Quaternionf currentRotation;

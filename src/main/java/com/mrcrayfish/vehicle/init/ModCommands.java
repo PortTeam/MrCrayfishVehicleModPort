@@ -18,9 +18,9 @@ public class ModCommands
     @SubscribeEvent
     public void onServerStart(ServerStartingEvent event)
     {
-        if(FMLLoader.isProduction())
-            return;
-        CommandDispatcher<CommandSourceStack> dispatcher = event.getServer().getCommands().getDispatcher();
+//        if(FMLLoader.isProduction())
+//            return;
+//        CommandDispatcher<CommandSourceStack> dispatcher = event.getServer().getCommands().getDispatcher();
         //this.registerCommands(dispatcher, event.getServer().isDedicatedServer());
     }
 

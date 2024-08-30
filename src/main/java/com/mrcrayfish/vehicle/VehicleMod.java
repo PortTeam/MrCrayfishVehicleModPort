@@ -15,11 +15,13 @@ import com.mrcrayfish.vehicle.datagen.VehiclePropertiesGen;
 import com.mrcrayfish.vehicle.entity.properties.*;
 import com.mrcrayfish.vehicle.init.*;
 import com.mrcrayfish.vehicle.network.PacketHandler;
+import net.minecraft.client.Minecraft;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.EntityRenderersEvent;
+import net.minecraftforge.client.event.RegisterClientReloadListenersEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.crafting.CraftingHelper;
 import net.minecraftforge.data.event.GatherDataEvent;
@@ -34,6 +36,8 @@ import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.util.function.Consumer;
+
 import static com.mrcrayfish.vehicle.client.ClientHandler.setupTileEntityRenderers;
 
 /**
@@ -46,9 +50,8 @@ public class VehicleMod
 
     public VehicleMod()
     {
-        FrameworkSetup.run();
-        ModLoadingContext.get().registerConfig(ModConfig.Type.SERVER, Config.serverSpec);
-        ModLoadingContext.get().registerConfig(ModConfig.Type.CLIENT, Config.clientSpec);
+        //FrameworkSetup.run();
+
         final var eventBus = FMLJavaModLoadingContext.get().getModEventBus();
         ModBlocks.register(eventBus);
         ModItems.REGISTER.register(eventBus);
@@ -57,10 +60,11 @@ public class VehicleMod
         ModContainers.REGISTER.register(eventBus);
         ModParticleTypes.REGISTER.register(eventBus);
         ModSounds.REGISTER.register(eventBus);
-        ModRecipeSerializers.REGISTER.register(eventBus);
+        ModRecipeSerializers.register(eventBus);
         ModFluids.REGISTER.register(eventBus);
         RecipeTypes.register(eventBus);
-
+        ModLoadingContext.get().registerConfig(ModConfig.Type.SERVER, Config.serverSpec);
+        ModLoadingContext.get().registerConfig(ModConfig.Type.CLIENT, Config.clientSpec);
         eventBus.addListener(this::onCommonSetup);
         eventBus.addListener(this::onClientSetup);
         eventBus.addListener(this::onGatherData);
@@ -69,31 +73,28 @@ public class VehicleMod
         MinecraftForge.EVENT_BUS.register(new CommonEvents());
         MinecraftForge.EVENT_BUS.register(new ModCommands());
         MinecraftForge.EVENT_BUS.register(FluidNetworkHandler.instance());
-
+        ExtendedProperties.register(new ResourceLocation(Reference.MOD_ID, "powered"), PoweredProperties.class, PoweredProperties::new);
+        ExtendedProperties.register(new ResourceLocation(Reference.MOD_ID, "land"), LandProperties.class, LandProperties::new);
+        ExtendedProperties.register(new ResourceLocation(Reference.MOD_ID, "motorcycle"), MotorcycleProperties.class, MotorcycleProperties::new);
+        ExtendedProperties.register(new ResourceLocation(Reference.MOD_ID, "plane"), PlaneProperties.class, PlaneProperties::new);
+        ExtendedProperties.register(new ResourceLocation(Reference.MOD_ID, "helicopter"), HelicopterProperties.class, HelicopterProperties::new);
+        ExtendedProperties.register(new ResourceLocation(Reference.MOD_ID, "trailer"), TrailerProperties.class, TrailerProperties::new);
         DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> ComponentManager.registerLoader(VehicleModels.LOADER));
     }
 
     private void onCommonSetup(FMLCommonSetupEvent event)
     {
         VehicleProperties.loadDefaultProperties();
+        PacketHandler.registerMessages();
 
-        HeldVehicleDataHandler.register();
+        //HeldVehicleDataHandler.register();
         ModDataKeys.register();
         //ModLootFunctions.init();
         CraftingHelper.register(new ResourceLocation(Reference.MOD_ID, "workstation_ingredient"), WorkstationIngredient.Serializer.INSTANCE);
-        event.enqueueWork(() -> VehicleProperties.registerDynamicProvider(() -> new VehiclePropertiesGen(null)));
-        event.enqueueWork(() -> {
-            PacketHandler.registerMessages();
-            //VehicleProperties.registerDynamicProvider(() -> new VehiclePropertiesGen(null));
+        event.enqueueWork(() -> VehicleProperties.registerDynamicProvider(() -> new VehiclePropertiesGen(null,null,null)));
+        //VehicleProperties.registerDynamicProvider(() -> new VehiclePropertiesGen(null));
+        // Move ExtendedProperties registration here
 
-            // Move ExtendedProperties registration here
-            ExtendedProperties.register(new ResourceLocation(Reference.MOD_ID, "powered"), PoweredProperties.class, PoweredProperties::new);
-            ExtendedProperties.register(new ResourceLocation(Reference.MOD_ID, "land"), LandProperties.class, LandProperties::new);
-            ExtendedProperties.register(new ResourceLocation(Reference.MOD_ID, "motorcycle"), MotorcycleProperties.class, MotorcycleProperties::new);
-            ExtendedProperties.register(new ResourceLocation(Reference.MOD_ID, "plane"), PlaneProperties.class, PlaneProperties::new);
-            ExtendedProperties.register(new ResourceLocation(Reference.MOD_ID, "helicopter"), HelicopterProperties.class, HelicopterProperties::new);
-            ExtendedProperties.register(new ResourceLocation(Reference.MOD_ID, "trailer"), TrailerProperties.class, TrailerProperties::new);
-        });
     }
 
     private void buildContents(CreativeModeTab.Output output)
@@ -103,16 +104,20 @@ public class VehicleMod
 
     private void onClientSetup(FMLClientSetupEvent event)
     {
-        event.enqueueWork(ClientHandler::setup);
+        ClientHandler.setup();
 
     }
+    private void onResourceReload(final RegisterClientReloadListenersEvent event) {
+        event.registerReloadListener(new VehicleProperties.Manager());
+    }
+
 
     private void onGatherData(GatherDataEvent event)
     {
         DataGenerator generator = event.getGenerator();
 //        generator.addProvider(new LootTableGen(generator));
-        generator.addProvider(event.includeServer(),new RecipeGen(generator.getPackOutput()));
-        generator.addProvider(event.includeServer(),new VehiclePropertiesGen(generator));
+        //generator.addProvider(event.includeServer(),new RecipeGen(generator.getPackOutput()));
+        generator.addProvider(event.includeServer(),new VehiclePropertiesGen(generator,generator.getPackOutput(),event.getLookupProvider()));
     }
     public void tile(EntityRenderersEvent.RegisterRenderers event)
     {

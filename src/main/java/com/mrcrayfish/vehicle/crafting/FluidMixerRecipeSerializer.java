@@ -17,12 +17,7 @@ import javax.annotation.Nullable;
  */
 public class FluidMixerRecipeSerializer implements RecipeSerializer<FluidMixerRecipe>
 {
-    public static FluidMixerRecipeSerializer INSTANCE;
-
-    public FluidMixerRecipeSerializer()
-    {
-        INSTANCE = this;
-    }
+    public static FluidMixerRecipeSerializer INSTANCE = new FluidMixerRecipeSerializer();
     @Override
     public FluidMixerRecipe fromJson(ResourceLocation recipeId, JsonObject json)
     {
