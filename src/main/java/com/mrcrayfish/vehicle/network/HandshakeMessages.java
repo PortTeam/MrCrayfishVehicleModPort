@@ -52,7 +52,7 @@ public class HandshakeMessages
 
     public static class S2CVehicleProperties extends LoginIndexedMessage
     {
-        private ImmutableMap<ResourceLocation, VehicleProperties> propertiesMap;
+        public static ImmutableMap<ResourceLocation, VehicleProperties> propertiesMap;
 
         public S2CVehicleProperties() {}
 

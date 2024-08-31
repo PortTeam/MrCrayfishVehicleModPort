@@ -774,11 +774,9 @@ public abstract class VehicleEntity extends Entity implements IEntityAdditionalS
     }
 
     @Override
-    public Packet<ClientGamePacketListener> getAddEntityPacket()
-    {
+    public Packet<ClientGamePacketListener> getAddEntityPacket() {
         return NetworkHooks.getEntitySpawningPacket(this);
     }
-    
 
     public CosmeticTracker getCosmeticTracker()
     {

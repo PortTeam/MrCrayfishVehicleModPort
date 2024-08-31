@@ -17,7 +17,7 @@ description="A mod that adds vehicles into Minecraft!"
 [[dependencies.vehicle]]
     modId="forge"
     mandatory=true
-    versionRange="[47.1.47,)"
+    versionRange="[47.3.1,)"
     ordering="NONE"
     side="BOTH"
 [[dependencies.vehicle]]

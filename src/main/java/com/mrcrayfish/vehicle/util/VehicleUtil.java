@@ -17,9 +17,11 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
+import net.minecraft.world.level.Level;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.fml.ModList;
+import net.minecraftforge.fml.util.ObfuscationReflectionHelper;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.RegistryObject;
 
@@ -33,67 +35,69 @@ import java.util.function.Supplier;
  */
 public class VehicleUtil
 {
-    public static <T extends VehicleEntity> RegistryObject<EntityType<T>> createEntityType(
-            DeferredRegister<EntityType<?>> deferredRegister,
-            String name,
-            EntityType.EntityFactory<T> factory,
-            float width,
-            float height
-    )
+    public static <T extends VehicleEntity> RegistryObject<EntityType<T>> createEntityType(DeferredRegister<EntityType<?>> deferredRegister, String name, BiFunction<EntityType<T>, Level, T> function, float width, float height)
     {
-        return createEntityType(deferredRegister, name, () -> buildVehicleType(name, factory, width, height), width, height, true);
+        return createEntityType(deferredRegister, name, function, width, height, true);
     }
 
-    public static <T extends VehicleEntity> RegistryObject<EntityType<T>> createEntityType(
-            DeferredRegister<EntityType<?>> deferredRegister,
-            String name,
-            Supplier<EntityType<T>> typeSupplier,
-            float width,
-            float height,
-            boolean includeCrate
-    )
+    public static <T extends VehicleEntity> RegistryObject<EntityType<T>> createEntityType(DeferredRegister<EntityType<?>> deferredRegister, String name, BiFunction<EntityType<T>, Level, T> function, float width, float height, boolean includeCrate)
     {
         ResourceLocation id = new ResourceLocation(Reference.MOD_ID, name);
-        EntityType<T> type = typeSupplier.get();
+        EntityType<T> type = VehicleUtil.buildVehicleType(id, function, width, height);
         VehicleRegistry.registerVehicleType(type);
-        if (includeCrate) VehicleCrateBlock.registerVehicle(id);
+        if (includeCrate) {
+            VehicleCrateBlock.registerVehicle(id);
+        }
         return deferredRegister.register(name, () -> type);
     }
 
     @Nullable
-    public static <T extends VehicleEntity> RegistryObject<EntityType<T>> createModDependentEntityType(
-            DeferredRegister<EntityType<?>> deferredRegister,
-            String modId,
-            String id,
-            EntityType.EntityFactory<T> factory,
-            float width,
-            float height,
-            boolean registerCrate
-    )
+    public static <T extends VehicleEntity> RegistryObject<EntityType<T>> createModDependentEntityType(DeferredRegister<EntityType<?>> deferredRegister, String modId, String id, BiFunction<EntityType<T>, Level, T> function, float width, float height, boolean registerCrate)
     {
-        if (ModList.get().isLoaded(modId))
+        if(ModList.get().isLoaded(modId))
         {
-            // Register the EntityType if the mod is loaded
-            return createEntityType(deferredRegister, id, () -> buildVehicleType(id, factory, width, height), width, height, registerCrate);
+            return createEntityType(deferredRegister, id, function, width, height, registerCrate);
         }
         return null;
     }
 
-
-    public static <T extends Entity> EntityType<T> buildVehicleType(
+    private static <T extends Entity> EntityType<T> buildVehicleType(ResourceLocation id, BiFunction<EntityType<T>, Level, T> function, float width, float height)
+    {
+        return EntityType.Builder.of(function::apply, MobCategory.MISC).sized(width, height).setTrackingRange(256).setUpdateInterval(1).fireImmune().setShouldReceiveVelocityUpdates(true).build(id.toString());
+    }
+    public static <T extends VehicleEntity> RegistryObject<EntityType<T>> registerVehicleEntity(
+            DeferredRegister<EntityType<?>> register,
             String id,
-            EntityType.EntityFactory<T> factory,
+            BiFunction<EntityType<T>, Level, T> entityFactory,
             float width,
             float height
-    )
-    {
-        return EntityType.Builder.of(factory, MobCategory.MISC)
+
+    ) {
+        RegistryObject<EntityType<T>> entityType = register.register(id, () ->
+                buildVehicleType(id, entityFactory, width, height)
+        );
+
+        VehicleCrateBlock.registerVehicle(ResourceLocation.tryParse(id));
+
+        return entityType;
+    }
+
+    // Build vehicle type
+    public static <T extends VehicleEntity> EntityType<T> buildVehicleType(
+            String id,
+            BiFunction<EntityType<T>, Level, T> entityFactory,
+            float width,
+            float height
+    ) {
+        EntityType<T> type =  EntityType.Builder.of(entityFactory::apply, MobCategory.MISC)
                 .sized(width, height)
                 .setTrackingRange(256)
                 .setUpdateInterval(1)
                 .fireImmune()
                 .setShouldReceiveVelocityUpdates(true)
                 .build(id);
+        VehicleRegistry.registerVehicleType(type);
+        return type;
     }
 
     @OnlyIn(Dist.CLIENT)
@@ -102,8 +106,8 @@ public class VehicleUtil
             BiFunction<EntityType<T>, VehicleProperties, AbstractVehicleRenderer<T>> rendererFunction
     )
     {
-        VehicleProperties properties = VehicleProperties.get(type);
-        AbstractVehicleRenderer<T> renderer = rendererFunction.apply(type, properties);
+        //VehicleProperties properties = VehicleProperties.get(type);
+        AbstractVehicleRenderer<T> renderer = rendererFunction.apply(type, VehicleProperties.get(type));
         EntityRenderers.register(type, manager -> new EntityVehicleRenderer<>(manager, renderer));
         VehicleRenderRegistry.registerVehicleRendererFunction(type, rendererFunction, renderer);
         EntityRayTracer.instance().registerTransforms(type, renderer::getRayTraceTransforms);

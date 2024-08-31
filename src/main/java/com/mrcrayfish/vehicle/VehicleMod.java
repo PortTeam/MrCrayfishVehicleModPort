@@ -33,6 +33,8 @@ import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraftforge.registries.RegisterEvent;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -47,15 +49,15 @@ import static com.mrcrayfish.vehicle.client.ClientHandler.setupTileEntityRendere
 public class VehicleMod
 {
     public static final Logger LOGGER = LogManager.getLogger(Reference.MOD_ID);
-
+    final IEventBus eventBus = FMLJavaModLoadingContext.get().getModEventBus();
     public VehicleMod()
     {
         //FrameworkSetup.run();
 
-        final var eventBus = FMLJavaModLoadingContext.get().getModEventBus();
+
         ModBlocks.register(eventBus);
         ModItems.REGISTER.register(eventBus);
-        ModEntities.REGISTER.register(eventBus);
+        ModEntities.register(eventBus);
         ModTileEntities.REGISTER.register(eventBus);
         ModContainers.REGISTER.register(eventBus);
         ModParticleTypes.REGISTER.register(eventBus);
@@ -82,18 +84,18 @@ public class VehicleMod
         DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> ComponentManager.registerLoader(VehicleModels.LOADER));
     }
 
+   
     private void onCommonSetup(FMLCommonSetupEvent event)
     {
         VehicleProperties.loadDefaultProperties();
-        PacketHandler.registerMessages();
+        event.enqueueWork(PacketHandler::registerMessages);
 
         //HeldVehicleDataHandler.register();
         ModDataKeys.register();
         //ModLootFunctions.init();
         CraftingHelper.register(new ResourceLocation(Reference.MOD_ID, "workstation_ingredient"), WorkstationIngredient.Serializer.INSTANCE);
         event.enqueueWork(() -> VehicleProperties.registerDynamicProvider(() -> new VehiclePropertiesGen(null,null,null)));
-        //VehicleProperties.registerDynamicProvider(() -> new VehiclePropertiesGen(null));
-        // Move ExtendedProperties registration here
+
 
     }
 

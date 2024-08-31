@@ -36,7 +36,9 @@ import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.loading.FMLEnvironment;
 import net.minecraftforge.fml.util.thread.EffectiveSide;
+import net.minecraftforge.registries.ForgeRegistries;
 import org.apache.commons.lang3.tuple.Pair;
+import org.jetbrains.annotations.NotNull;
 import org.lwjgl.glfw.GLFW;
 
 import javax.annotation.Nullable;
@@ -235,15 +237,19 @@ public class VehicleProperties
         return this.cosmetics;
     }
 
-    public static void loadDefaultProperties()
-    {
-        for(EntityType<? extends VehicleEntity> entityType : VehicleRegistry.getRegisteredVehicleTypes())
-        {
-            DEFAULT_VEHICLE_PROPERTIES.computeIfAbsent(new ResourceLocation(Reference.MOD_ID,entityType.toString()), VehicleProperties::loadDefaultProperties);
+    public static void loadDefaultProperties() {
+        for (EntityType<? extends VehicleEntity> entityType : VehicleRegistry.getRegisteredVehicleTypes()) {
+
+            String entityID = getEntityID(entityType);
+            if (entityID != null) {
+                ResourceLocation resourceLocation = new ResourceLocation(Reference.MOD_ID, entityID);
+                DEFAULT_VEHICLE_PROPERTIES.computeIfAbsent(resourceLocation, VehicleProperties::loadDefaultProperties);
+            }
         }
     }
 
-    private static VehicleProperties loadDefaultProperties(ResourceLocation id)
+
+    public static VehicleProperties loadDefaultProperties(ResourceLocation id)
     {
         String resource = String.format("/data/%s/vehicles/properties/%s.json", id.getNamespace(), id.getPath());
         try(InputStream is = VehicleProperties.class.getResourceAsStream(resource))
@@ -287,10 +293,16 @@ public class VehicleProperties
             VehicleMod.LOGGER.error("Missing cosmetic definitions file: " + resource, e);
         }
     }
-
     private static VehicleProperties loadPropertiesFromStream(InputStream is)
     {
         return GSON.fromJson(new InputStreamReader(is, StandardCharsets.UTF_8), VehicleProperties.class);
+    }
+    public static String getEntityID(EntityType<?> entityType) {
+        ResourceLocation resourceLocation = ForgeRegistries.ENTITY_TYPES.getKey(entityType);
+        if (resourceLocation != null) {
+            return resourceLocation.getPath();
+        }
+        return null;
     }
 
     public static VehicleProperties get(EntityType<?> entityType)
@@ -316,10 +328,10 @@ public class VehicleProperties
         if(properties == null)
         {
             properties = DEFAULT_VEHICLE_PROPERTIES.get(id);
-            if(properties == null)
-            {
-                throw new IllegalArgumentException("No vehicle properties registered for " + id);
-            }
+//            if(properties == null)
+//            {
+//                throw new IllegalArgumentException("No vehicle properties registered for " + id);
+//            }
         }
         return properties;
     }
@@ -557,8 +569,8 @@ public class VehicleProperties
             VehiclePropertiesProvider provider = supplier.get();
             provider.setScaleWheels(true);
             provider.registerProperties();
-            provider.getVehiclePropertiesMap().forEach(DEFAULT_VEHICLE_PROPERTIES::put);
-            provider.getVehiclePropertiesMap().forEach(NETWORK_VEHICLE_PROPERTIES::put);
+            DEFAULT_VEHICLE_PROPERTIES.putAll(provider.getVehiclePropertiesMap());
+            NETWORK_VEHICLE_PROPERTIES.putAll(provider.getVehiclePropertiesMap());
         });
 
         Minecraft.getInstance().gui.setOverlayMessage(Component.literal("Refreshed vehicle properties!"), false);
@@ -779,8 +791,8 @@ public class VehicleProperties
     @Mod.EventBusSubscriber(modid = Reference.MOD_ID)
     public static class Manager extends SimplePreparableReloadListener<Map<ResourceLocation, VehicleProperties>> {
 
-        private static final String PROPERTIES_DIRECTORY = "vehicle:vehicles/properties";
-        private static final String COSMETICS_DIRECTORY = "vehicle:vehicles/cosmetics";
+        private static final String PROPERTIES_DIRECTORY = "vehicles/properties";
+        private static final String COSMETICS_DIRECTORY = "vehicles/cosmetics";
         private static final String FILE_SUFFIX = ".json";
 
         @Nullable
@@ -836,8 +848,8 @@ public class VehicleProperties
         }
 
         @Override
-        protected void apply(Map<ResourceLocation, VehicleProperties> resourceLocationVehiclePropertiesMap, ResourceManager resourceManager, ProfilerFiller profilerFiller) {
-            this.vehicleProperties = ImmutableMap.copyOf(resourceLocationVehiclePropertiesMap);
+        protected void apply(@NotNull Map<ResourceLocation, VehicleProperties> resourceLocationVehiclePropertiesMap, ResourceManager resourceManager, ProfilerFiller profilerFiller) {
+            this.vehicleProperties = ImmutableMap.copyOf(HandshakeMessages.S2CVehicleProperties.propertiesMap);
         }
 
         @Nullable
@@ -880,7 +892,7 @@ public class VehicleProperties
                 for (int i = 0; i < size; i++) {
                     ResourceLocation id = buffer.readResourceLocation();
                     String json = buffer.readUtf();
-                    VehicleProperties properties = GsonHelper.fromJson(GSON,json, VehicleProperties.class);
+                    VehicleProperties properties = GSON.fromJson(json, VehicleProperties.class);
                     builder.put(id, properties);
                     readCosmeticModelLocations(buffer, properties);
                 }
@@ -925,6 +937,5 @@ public class VehicleProperties
             }
         }
 
-        private static final Gson GSON = new Gson(); // Define the Gson instance
     }
 }

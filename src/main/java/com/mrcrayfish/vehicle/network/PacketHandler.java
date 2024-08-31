@@ -2,7 +2,9 @@ package com.mrcrayfish.vehicle.network;
 
 import com.mrcrayfish.vehicle.Reference;
 import com.mrcrayfish.vehicle.network.message.*;
+import net.minecraft.client.multiplayer.ClientHandshakePacketListenerImpl;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraftforge.network.NetworkDirection;
@@ -29,13 +31,15 @@ public class PacketHandler
 
     public static void registerMessages()
     {
+        // Registering C2SAcknowledge message
         HANDSHAKE_CHANNEL.messageBuilder(HandshakeMessages.C2SAcknowledge.class, 99)
                 .loginIndex(HandshakeMessages.LoginIndexedMessage::getLoginIndex, HandshakeMessages.LoginIndexedMessage::setLoginIndex)
                 .decoder(HandshakeMessages.C2SAcknowledge::decode)
                 .encoder(HandshakeMessages.C2SAcknowledge::encode)
-                .consumerMainThread(net.minecraftforge.network.HandshakeHandler.indexFirst((handler, msg, s) -> HandshakeHandler.handleAcknowledge(msg, s)))
+                .consumerNetworkThread(net.minecraftforge.network.HandshakeHandler.indexFirst((handler, msg, s) -> HandshakeHandler.handleAcknowledge(msg, s)))
                 .add();
 
+// Registering S2CVehicleProperties message
         HANDSHAKE_CHANNEL.messageBuilder(HandshakeMessages.S2CVehicleProperties.class, 1)
                 .loginIndex(HandshakeMessages.LoginIndexedMessage::getLoginIndex, HandshakeMessages.LoginIndexedMessage::setLoginIndex)
                 .decoder(HandshakeMessages.S2CVehicleProperties::decode)
@@ -43,13 +47,16 @@ public class PacketHandler
                 .consumerMainThread(net.minecraftforge.network.HandshakeHandler.biConsumerFor((handler, msg, supplier) -> HandshakeHandler.handleVehicleProperties(msg, supplier)))
                 .markAsLoginPacket()
                 .add();
-        HANDSHAKE_CHANNEL.messageBuilder(HandshakeMessages.S2CSyncedPlayerData.class, 1)
+
+// Registering S2CSyncedPlayerData message
+        HANDSHAKE_CHANNEL.messageBuilder(HandshakeMessages.S2CSyncedPlayerData.class, 2)
                 .loginIndex(HandshakeMessages.LoginIndexedMessage::getLoginIndex, HandshakeMessages.LoginIndexedMessage::setLoginIndex)
                 .decoder(HandshakeMessages.S2CSyncedPlayerData::decode)
                 .encoder(HandshakeMessages.S2CSyncedPlayerData::encode)
                 .consumerMainThread(net.minecraftforge.network.HandshakeHandler.biConsumerFor((handler, msg, supplier) -> HandshakeHandler.handleSyncedPlayerData(msg, supplier)))
                 .markAsLoginPacket()
                 .add();
+
         registerMessage(MessageTurnAngle.class, MessageTurnAngle::encode, MessageTurnAngle::decode, MessageTurnAngle::handle, NetworkDirection.PLAY_TO_SERVER);
         registerMessage(MessageHandbrake.class, MessageHandbrake::encode, MessageHandbrake::decode, MessageHandbrake::handle, NetworkDirection.PLAY_TO_SERVER);
         registerMessage(MessageHorn.class, MessageHorn::encode, MessageHorn::decode, MessageHorn::handle, NetworkDirection.PLAY_TO_SERVER);
@@ -73,8 +80,8 @@ public class PacketHandler
         registerMessage(MessagePlaneInput.class, MessagePlaneInput::encode, MessagePlaneInput::decode, MessagePlaneInput::handle, NetworkDirection.PLAY_TO_SERVER);
         registerMessage(MessageSyncCosmetics.class, MessageSyncCosmetics::encode, MessageSyncCosmetics::decode, MessageSyncCosmetics::handle, NetworkDirection.PLAY_TO_CLIENT);
         registerMessage(MessageInteractCosmetic.class, MessageInteractCosmetic::encode, MessageInteractCosmetic::decode, MessageInteractCosmetic::handle, NetworkDirection.PLAY_TO_SERVER);
-        registerMessage(MessageSyncActionData.class, MessageSyncActionData::encode, MessageSyncActionData::decode, MessageSyncActionData::handle, NetworkDirection.PLAY_TO_CLIENT);
-        registerMessage(MessageSyncPlayerData.class, MessageSyncPlayerData::encode, MessageSyncPlayerData::decode, MessageSyncPlayerData::handle, NetworkDirection.PLAY_TO_CLIENT);
+        registerMessage(MessageSyncActionData.class, MessageSyncActionData::encode, MessageSyncActionData::decode, MessageSyncActionData::handle, NetworkDirection.PLAY_TO_SERVER);
+        registerMessage(MessageSyncPlayerData.class, MessageSyncPlayerData::encode, MessageSyncPlayerData::decode, MessageSyncPlayerData::handle, NetworkDirection.PLAY_TO_SERVER);
     }
 
     private static <T> void registerMessage(Class<T> clazz, BiConsumer<T, FriendlyByteBuf> encoder, Function<FriendlyByteBuf, T> decoder, BiConsumer<T, Supplier<NetworkEvent.Context>> handler, NetworkDirection direction)
